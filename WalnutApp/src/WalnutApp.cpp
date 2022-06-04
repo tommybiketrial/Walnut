@@ -80,7 +80,9 @@ public:
 		}
 		//components
 		for (int i = 0; i < SeriesCircuitNum; i++) { //Generate Components and LABELs for the list of components
-			SeriesComponentValue.push_back(0);
+			if (SeriesComponentValue.size() < SeriesCircuitNum) {
+				SeriesComponentValue.push_back(0);
+			}
 			std::string AppendNum = std::to_string(i);
 			if (SeriesCircuitSelect % 3 == 0) {
 				AppendNum.append("Voltage");
@@ -122,7 +124,7 @@ public:
 		}
 		else if (SeriesCircuitSelect % 3 == 1) {
 			ImGui::Text("Current is equal throughout the circuit in series.");
-			ImGui::Text("I(total) = I(1) = 1(2) = 1(3)... = 1(n)");
+			ImGui::Text("I(total) = I(1) = I(2) = I(3)... = I(n)");
 		}
 		else {
 			if (TFSeriesResistance.Resistance != 0) {
@@ -137,7 +139,90 @@ public:
 		//PARALLEL CIRCUIT CALCULATIONS <><><><><><><><><><><><><><><><><><><><><><><><><>
 		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
 		ImGui::BeginChild("3rd section", ImVec2(ImGui::GetContentRegionAvail().x, 350), true);
-		
+		ImGui::BeginChild("Parallel Circuit", ImVec2(500, 300), true);
+		ImGui::Text("Parallel Circuit Calculation");
+		if (ImGui::Button("Voltage/Current/Resistance"))
+		{
+			ParallelCircuitSelect++;
+		}
+		if (ImGui::Button("+Components"))
+		{
+			ParallelCircuitNum++;
+		}
+		if (ImGui::Button("-Components"))
+		{
+			ParallelCircuitNum--;
+		}
+		//main
+		static double ParallelMainValue = 0;
+		if (ParallelCircuitSelect % 3 == 0) {
+			ImGui::InputDouble("Total Voltage", &ParallelMainValue, 1, 10, "%.2f", 0);
+		}
+		else if (ParallelCircuitSelect % 3 == 1) {
+			ImGui::InputDouble("Total Current", &ParallelMainValue, 1, 10, "%.2f", 0);
+		}
+		else {
+			ImGui::InputDouble("Total Resistance", &ParallelMainValue, 1, 10, "%.2f", 0);
+		}
+
+		//components
+		for (int i = 0; i < ParallelCircuitNum; i++) { //Generate Components and LABELs for the list of components
+			if (ParallelComponentValue.size() < ParallelCircuitNum) {
+				ParallelComponentValue.push_back(0);
+			}
+			std::string AppendNum = std::to_string(i);
+			if (ParallelCircuitSelect % 3 == 0) {
+				AppendNum.append("Voltage");
+				ImGui::InputDouble(AppendNum.c_str(), &ParallelComponentValue[i], 1, 10, "%.2f", 0);
+			}
+			else if (ParallelCircuitSelect % 3 == 1) {
+				AppendNum.append("Current");
+				ImGui::InputDouble(AppendNum.c_str(), &ParallelComponentValue[i], 1, 10, "%.2f", 0);
+			}
+			else {
+				AppendNum.append("Resistance");
+				ImGui::InputDouble(AppendNum.c_str(), &ParallelComponentValue[i], 1, 10, "%.2f", 0);
+			}
+		}
+
+		//===============
+
+		if (ParallelCircuitSelect % 3 == 0) {
+			//Voltage is same
+		}
+		else if (ParallelCircuitSelect % 3 == 1) {
+			TFParallelCurrent.calculateParallelCurrent(ParallelMainValue, ParallelComponentValue);
+		}
+		else {
+			TFParallelResistance.calculateParallelResistance(ParallelMainValue, ParallelComponentValue);
+		}
+
+
+		ImGui::EndChild();
+		ImGui::SameLine();
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
+		ImGui::BeginChildEx("Parallel Circuit Output", 2, ImVec2(500, 300), true, 1);
+
+		if (ParallelCircuitSelect % 3 == 0) {
+			ImGui::Text("Voltage is equal throughout the circuit in parallel.");
+			ImGui::Text("V(total) = V(1) = V(2) = V(3)... = V(n)");
+		}
+		else if (ParallelCircuitSelect % 3 == 1) {
+			if (TFParallelCurrent.Current != 0) {
+				parallelTmp = TFParallelCurrent.Current;
+			}
+			ImGui::Text("Current: %f", parallelTmp);
+			ImGui::Text("I(total) = I(1) + I(2) + I(3)... + I(n)");
+		}
+		else {
+			if (TFParallelResistance.Resistance != 0) {
+				parallelTmp = TFParallelResistance.Resistance;
+			}
+			ImGui::Text("Resistance: %f", parallelTmp);
+			ImGui::Text("1/R(total) = 1/R(1) + 1/R(2) + 1/R(3)... + 1/R(n)");
+		}
+
+		ImGui::EndChild();
 		ImGui::EndChild();
 
 
@@ -149,6 +234,8 @@ public:
 
 private:
 	std::shared_ptr<Walnut::Image> m_Image;
+
+	std::vector<double> empty;
 
 	// for series circuit
 	int SeriesCircuitSelect = 0;

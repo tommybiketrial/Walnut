@@ -42,11 +42,13 @@ public:
 	void calculateSeriesVoltage(double TotalValue, std::vector<double> Value_in) {
 		Voltage = 0;
 		if (TotalValue == 0) {
+			ImGui::Text("Calculating Total");
 			for (int i = 0; i < Value_in.size(); i++) {
 				Voltage += Value_in[i]; //in series, voltage goes +++++++
 			}
 		}
 		else {
+			ImGui::Text("Calculating Component");
 			for (int i = 0; i < Value_in.size(); i++) {
 				if (Value_in[i] == 0) {
 					for (int j = 0; j < Value_in.size(); j++) {
@@ -61,11 +63,13 @@ public:
 	void calculateSeriesResistance(double TotalValue, std::vector<double> Value_in) {
 		Resistance = 0;
 		if (TotalValue == 0) {
+			ImGui::Text("Calculating Total");
 			for (int i = 0; i < Value_in.size(); i++) {
-				Resistance += Value_in[i]; //in series, voltage goes +++++++
+				Resistance += Value_in[i]; //in series, resistance goes +++++++
 			}
 		}
 		else {
+			ImGui::Text("Calculating Component");
 			for (int i = 0; i < Value_in.size(); i++) {
 				if (Value_in[i] == 0) {
 					for (int j = 0; j < Value_in.size(); j++) {
@@ -77,6 +81,54 @@ public:
 		}
 	}
 
+	void calculateParallelCurrent(double TotalValue, std::vector<double> Value_in) {
+		Current = 0;
+		if (TotalValue == 0) {
+			ImGui::Text("Calculating Total");
+			for (int i = 0; i < Value_in.size(); i++) {
+				Current += Value_in[i]; //in parallel, current goes +++++++
+			}
+		}
+		else {
+			ImGui::Text("Calculating Component");
+			for (int i = 0; i < Value_in.size(); i++) {
+				if (Value_in[i] == 0) {
+					for (int j = 0; j < Value_in.size(); j++) {
+						Current += Value_in[j];
+					}
+					Current = TotalValue - Current;
+				}
+			}
+		}
+	}
+
+	void calculateParallelResistance(double TotalValue, std::vector<double> Value_in) {
+		Resistance = 0;
+		double sum = 0;
+		if (TotalValue == 0) {
+			ImGui::Text("Calculating Total");
+			for (int i = 0; i < Value_in.size(); i++) {
+				if (Value_in[i] != 0) {
+					Resistance += 1 / Value_in[i];
+				}
+				//in parallel, resistance goes inverse ++... 1/R(total) = 1/R(1) + 1/R(2) + 1/R(3)... + 1/R(n)
+			}
+			Resistance = 1 / Resistance;
+		}
+		else {
+			ImGui::Text("Calculating Component");
+			for (int i = 0; i < Value_in.size(); i++) {
+				if (Value_in[i] == 0) {
+					for (int j = 0; j < Value_in.size(); j++) {
+						if (Value_in[j] != 0) {
+							sum += 1 / Value_in[j];
+						}
+					}
+				}
+			}
+			Resistance = 1 / ((1 / TotalValue) - sum);
+		}
+	}
 
 
 };
