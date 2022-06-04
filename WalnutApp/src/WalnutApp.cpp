@@ -14,12 +14,15 @@ class ExampleLayer : public Walnut::Layer
 {
 public:
 	virtual void OnAttach() override {
-		m_Image = std::make_shared<Walnut::Image>("../media/TommyElectricalCalculatorBackground.png");
+		//m_Image = std::make_shared<Walnut::Image>("../media/TommyElectricalCalculatorBackground.png");
 	}
 	virtual void OnUIRender() override
 	{
+		
+
 		ImGuiWindowClass window_class;
 		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
+		window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_DockSpace;
 		ImGui::SetNextWindowClass(&window_class);
 
 		ImGui::Begin("Cheat Sheet :)");
@@ -227,7 +230,7 @@ public:
 
 
 		
-		ImGui::Image(m_Image->GetDescriptorSet(), { (float)m_Image->GetWidth(), (float)m_Image->GetHeight() });
+		//ImGui::Image(m_Image->GetDescriptorSet(), { (float)m_Image->GetWidth(), (float)m_Image->GetHeight() });
 
 		ImGui::End();
 	}

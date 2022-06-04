@@ -26,8 +26,6 @@ public:
 		Current = current_in;
 		Resistance = resistance_in;
 
-		double result;
-
 		if (Voltage == 0) {
 			Voltage = Current * Resistance;
 		}
