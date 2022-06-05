@@ -15,6 +15,9 @@ public:
 	double Voltage = 0;
 	double Current = 0;
 	double Resistance = 0;
+	double Capacitance = 0;
+	double Charge = 0;
+	double Energy = 0;
 
 	std::vector<double> Voltages;
 	std::vector<double> Currents;
@@ -127,6 +130,29 @@ public:
 			Resistance = 1 / ((1 / TotalValue) - sum);
 		}
 	}
+
+	void calculateCapacitanceQV(double Capacitance_in, double Charge_in, double Voltage_in) {
+		Capacitance = Capacitance_in;
+		Charge = Charge_in;
+		Voltage = Voltage_in;
+		//C = Q/V  ~~  Q = VC ~~  V = C/Q
+		if (Capacitance == 0) {
+			Capacitance = Charge / Voltage;
+		}
+		else if (Charge == 0) {
+			Charge = Voltage * Capacitance;
+		}
+		else {
+			Voltage = Capacitance / Charge;
+		}
+	}
+	//TODO C = Q / V ~~~~ Capacitance = Charge / Voltage
+	//
+
+	//TODO energy stored in a capacitor formula U = 1/2C(V^2)
+	//capacitance of a conductor is C
+	//q is the charge on the plate at that time
+	//https://calctool.org/CALC/eng/electronics/capacitor_energy
 
 
 };
