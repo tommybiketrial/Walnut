@@ -135,7 +135,7 @@ public:
 		Capacitance = Capacitance_in;
 		Charge = Charge_in;
 		Voltage = Voltage_in;
-		//C = Q/V  ~~  Q = VC ~~  V = C/Q
+		//C = Q/V  ~~  Q = VC ~~  V = Q/C
 		if (Capacitance == 0) {
 			Capacitance = Charge / Voltage;
 		}
@@ -143,16 +143,27 @@ public:
 			Charge = Voltage * Capacitance;
 		}
 		else {
-			Voltage = Capacitance / Charge;
+			Voltage = Charge / Capacitance;
 		}
 	}
-	//TODO C = Q / V ~~~~ Capacitance = Charge / Voltage
-	//
 
-	//TODO energy stored in a capacitor formula U = 1/2C(V^2)
-	//capacitance of a conductor is C
-	//q is the charge on the plate at that time
-	//https://calctool.org/CALC/eng/electronics/capacitor_energy
+	void calculateEnergyInCapacitor(double Energy_in, double Capacitance_in, double Voltage_in) {
+		Energy = Energy_in;
+		Capacitance = Capacitance_in;
+		Voltage = Voltage_in;
+		//energy stored in a capacitor formula U = 1/2C(V^2)
+		//https://calctool.org/CALC/eng/electronics/capacitor_energy
+		if (Energy == 0) {
+			Energy = (Capacitance * Voltage * Voltage)/2;
+		}
+		else if (Capacitance == 0) {
+			Capacitance = Energy / (Voltage * Voltage) * 2; //C = U / (V * V) * 2
+		}
+		else {
+			Voltage = sqrt(Energy * 2 / Capacitance); // V = sqrt((U * 2) / C)
+		}
+	}
+	
 
 
 };

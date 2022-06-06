@@ -10,7 +10,7 @@
 #include <imgui_internal.h>
 
 TommyElectrical TFOhmsLaw, TFSeriesVoltage, TFSeriesResistance, TFParallelCurrent, TFParallelResistance;
-TommyElectrical TFCapacitanceQV;
+TommyElectrical TFCapacitanceQV, TFCapacitorEnergy;
 
 class ExampleLayer : public Walnut::Layer
 {
@@ -272,6 +272,28 @@ public:
 		}
 		ImGui::EndChild();
 
+		ImGui::EndChild();
+
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
+		ImGui::BeginChild("5th section", ImVec2(ImGui::GetContentRegionAvail().x, 350), true);
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("Energy stored in a capacitor", ImVec2(500, 300));
+
+		ImGui::Text("Energy stored in a capacitor");
+		ImGui::Text("U = 1/2(C * V * V)");
+
+		static double Input7 = 0;
+		static double Input8 = 0;
+		static double Input9 = 0;
+		ImGui::InputDouble("Energy", &Input7, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Capacitance", &Input8, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Voltage", &Input9, 0, 2, "%.2f", 0);
+		TFCapacitorEnergy.calculateEnergyInCapacitor(Input7, Input8, Input9);
+		ImGui::Text("Energy: %f J (Joule)", TFCapacitorEnergy.Energy);
+		ImGui::Text("Capacitance: %f F (Farads)", TFCapacitorEnergy.Capacitance);
+		ImGui::Text("Voltage: %f V (Volt)", TFCapacitorEnergy.Voltage);
+
+		ImGui::EndChild();
 		ImGui::EndChild();
 
 		
