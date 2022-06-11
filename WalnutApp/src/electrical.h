@@ -10,14 +10,15 @@ private:
 
 public:
 
-	int Position = 0;
-
 	double Voltage = 0;
 	double Current = 0;
 	double Resistance = 0;
 	double Capacitance = 0;
 	double Charge = 0;
 	double Energy = 0;
+	double RPM = 0;
+	double Frequency = 0;
+	double NumOfPoles = 0;
 
 	std::vector<double> Voltages;
 	std::vector<double> Currents;
@@ -164,6 +165,36 @@ public:
 		}
 	}
 	
+	void calculateACInductionMotor(double RPM_in, double Frequency_in, double NumOfPoles_in) {
+		RPM = RPM_in;
+		Frequency = Frequency_in;
+		NumOfPoles = NumOfPoles_in;
 
+		if (RPM == 0) {
+			RPM = 120 * Frequency / NumOfPoles;
+		}
+		else if (Frequency == 0) {
+			Frequency = NumOfPoles * RPM / 120;
+		}
+		else {
+			NumOfPoles = 120 * Frequency / RPM;
+		}
+	}
+
+	void clearObj() {
+		this->Voltage = 0;
+		this->Current = 0;
+		this->Resistance = 0;
+		this->Capacitance = 0;
+		this->Charge = 0;
+		this->Energy = 0;
+		this->RPM = 0;
+		this->Frequency = 0;
+		this->NumOfPoles = 0;
+
+		this->Voltages = Empty;
+		this->Currents = Empty;
+		this->Resistances = Empty;
+	}
 
 };

@@ -3,14 +3,15 @@
 
 #include "Walnut/Image.h"
 
+#include <imgui_internal.h>
 #include <Windows.h>
 #include <vector>
 #include <string>
 #include "electrical.h"
-#include <imgui_internal.h>
+
 
 TommyElectrical TFOhmsLaw, TFSeriesVoltage, TFSeriesResistance, TFParallelCurrent, TFParallelResistance;
-TommyElectrical TFCapacitanceQV, TFCapacitorEnergy;
+TommyElectrical TFCapacitanceQV, TFCapacitorEnergy, TFACInductionMotor;
 
 class ExampleLayer : public Walnut::Layer
 {
@@ -28,6 +29,13 @@ public:
 		ImGui::Begin("Cheat Sheet :)");
 
 		ImGuiStyle& style = ImGui::GetStyle();
+
+		style.Colors[ImGuiCol_ChildBg] = ImColor(25, 10, 50);
+		ImGui::BeginChild("tommytech.uk", ImVec2(ImGui::GetContentRegionAvail().x, 50), true);
+		if (ImGui::Button("tommytech.uk")) {
+			ShellExecuteA(NULL, "open", "https://tommytech.uk/welcome", NULL, NULL, SW_SHOWNORMAL);
+		}
+		ImGui::EndChild();
 
 		style.Colors[ImGuiCol_ChildBg] = ImColor(25, 10, 50);
 		ImGui::BeginChild("1st section",ImVec2(ImGui::GetContentRegionAvail().x,350),true);
@@ -50,6 +58,13 @@ public:
 		ImGui::Text("Voltage: %f V (volt)", TFOhmsLaw.Voltage);
 		ImGui::Text("Current: %f A (ampere)", TFOhmsLaw.Current);
 		ImGui::Text("Resistance: %f Ohm", TFOhmsLaw.Resistance);
+
+		if (ImGui::Button("clearInputs")) {
+			Input1 = 0;
+			Input2 = 0;
+			Input3 = 0;
+		}
+
 		ImGui::EndChild();
 		ImGui::SameLine();
 		ImGui::BeginChild("Link to Almost All Equations we need");
@@ -146,6 +161,13 @@ public:
 			ImGui::Text("Resistance: %f Ohm", seriesTmp);
 			ImGui::Text("R(total) = R(1) + R(2) + R(3)... + R(n)");
 		}
+
+		if (ImGui::Button("clearInputs")) {
+			SeriesMainValue = 0;
+			SeriesCircuitNum = 0;
+			SeriesComponentValue = empty;
+		}
+
 		ImGui::EndChild();
 		ImGui::EndChild();
 
@@ -238,6 +260,12 @@ public:
 			ImGui::Text("1/R(total) = 1/R(1) + 1/R(2) + 1/R(3)... + 1/R(n)");
 		}
 
+		if (ImGui::Button("clearInputs")) {
+			ParallelMainValue = 0;
+			ParallelCircuitNum = 0;
+			ParallelComponentValue = empty;
+		}
+
 		ImGui::EndChild();
 		ImGui::EndChild();
 
@@ -261,6 +289,10 @@ public:
 		ImGui::Text("Capacitance: %f F (Farads)", TFCapacitanceQV.Capacitance);
 		ImGui::Text("Charge: %f Q (Coulomb)", TFCapacitanceQV.Charge);
 		ImGui::Text("Voltage: %f V (Volt)", TFCapacitanceQV.Voltage);
+
+		if (ImGui::Button("clearInputs")) {
+			Input4 = 0; Input5 = 0; Input6 = 0;
+		}
 
 		ImGui::EndChild();
 		ImGui::SameLine();
@@ -293,9 +325,46 @@ public:
 		ImGui::Text("Capacitance: %f F (Farads)", TFCapacitorEnergy.Capacitance);
 		ImGui::Text("Voltage: %f V (Volt)", TFCapacitorEnergy.Voltage);
 
+		if (ImGui::Button("clearInputs")) {
+			Input7 = 0; Input8 = 0; Input9 = 0;
+		}
+
 		ImGui::EndChild();
 		ImGui::EndChild();
 
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
+		ImGui::BeginChild("6th section", ImVec2(ImGui::GetContentRegionAvail().x, 350), true);
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("AC Induction Motor", ImVec2(700, 300));
+		
+		ImGui::Text("AC Induction Motor (RPM, Frequency & Poles)");
+		ImGui::Text("n(synchoronous speed in RPM) = 120 x Frequency / Number of Poles");
+		
+		static double Input10 = 0;
+		static double Input11 = 0;
+		static double Input12 = 0;
+		ImGui::InputDouble("Synchoronous Speed(n)", &Input10, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Frequency", &Input11, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Number of Poles", &Input12, 0, 2, "%.2f", 0);
+		TFACInductionMotor.calculateACInductionMotor(Input10, Input11, Input12);
+		ImGui::Text("Synchoronous Speed(n): %f RPM (Revolutions per minute)", TFACInductionMotor.RPM);
+		ImGui::Text("Frequency: %f Hz (Hertz)", TFACInductionMotor.Frequency);
+		ImGui::Text("Number of Poles: %f ", TFACInductionMotor.NumOfPoles);
+
+		if (ImGui::Button("clearInputs")) {
+			Input10 = 0;Input11 = 0;Input12 = 0;
+		}
+
+		ImGui::EndChild();
+		ImGui::SameLine();
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 40, 23);
+		ImGui::BeginChild("Link to relevant website", ImVec2(500, 300));
+		ImGui::Text("https://getcalc.com/electrical-speed-frequency-poles-calculator.htm");
+		if (ImGui::Button("Open Website(electrical-speed-frequency-poles-calculator)")) {
+			ShellExecuteA(NULL, "open", "https://getcalc.com/electrical-speed-frequency-poles-calculator.htm", NULL, NULL, SW_SHOWNORMAL);
+		}
+		ImGui::EndChild();
+		ImGui::EndChild();
 		
 		//ImGui::Image(m_Image->GetDescriptorSet(), { (float)m_Image->GetWidth(), (float)m_Image->GetHeight() });
 
