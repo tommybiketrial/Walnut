@@ -12,6 +12,7 @@
 
 TommyElectrical TFOhmsLaw, TFSeriesVoltage, TFSeriesResistance, TFParallelCurrent, TFParallelResistance;
 TommyElectrical TFCapacitanceQV, TFCapacitorEnergy, TFACInductionMotor;
+TommyElectrical TFInductance, TFCapacitance, TFImpedanceReactance;
 
 class ExampleLayer : public Walnut::Layer
 {
@@ -367,6 +368,87 @@ public:
 		ImGui::EndChild();
 		
 		//ImGui::Image(m_Image->GetDescriptorSet(), { (float)m_Image->GetWidth(), (float)m_Image->GetHeight() });
+
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
+		ImGui::BeginChild("7th section", ImVec2(ImGui::GetContentRegionAvail().x, 350), true);
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("Inductance", ImVec2(600, 300));
+
+		ImGui::Text("Calculate Inductance & Inductive Reactance");
+		ImGui::Text("Xl = 2 * PI * F * L");
+		static double Input13 = 0;
+		static double Input14 = 0;
+		static double Input15 = 0;
+		ImGui::InputDouble("Frequency", &Input13, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Inductance", &Input14, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Reactance", &Input15, 0, 2, "%.2f", 0);
+		TFInductance.calculateInductance(Input13, Input14, Input15);
+		ImGui::Text("Frequency(F): %f Herz", TFInductance.Frequency);
+		ImGui::Text("Inductance(L): %f Henry", TFInductance.Inductance);
+		ImGui::Text("InductiveReactance(Xl): %f Ohm", TFInductance.InductiveReactance);
+
+		if (ImGui::Button("clearInputs")) {
+			Input13 = 0;
+			Input14 = 0;
+			Input15 = 0;
+		}
+
+		ImGui::EndChild();
+		ImGui::SameLine();
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 40, 23);
+		ImGui::BeginChild("Capacitance", ImVec2(600, 300));
+
+		ImGui::Text("Calculate Capacitance & Capacitive Reactance");
+		ImGui::Text("Xc = 1 / (2 * PI * F * C)");
+		static double Input16 = 0;
+		static double Input17 = 0;
+		static double Input18 = 0;
+		ImGui::InputDouble("Frequency", &Input16, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Capacitance", &Input17, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Reactance", &Input18, 0, 2, "%.2f", 0);
+		TFCapacitance.calculateCapacitance(Input16, Input17, Input18);
+		ImGui::Text("Frequency(F): %f Herz", TFCapacitance.Frequency);
+		ImGui::Text("Capacitance(C): %f Farad", TFCapacitance.Capacitance);
+		ImGui::Text("CapacitiveReactance(Xl): %f Ohm", TFCapacitance.CapacitiveReactance);
+
+		if (ImGui::Button("clearInputs")) {
+			Input16 = 0;
+			Input17 = 0;
+			Input18 = 0;
+		}
+
+		ImGui::EndChild();
+		ImGui::EndChild();
+
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
+		ImGui::BeginChild("8th section", ImVec2(ImGui::GetContentRegionAvail().x, 350), true);
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("Impedance from Reactance", ImVec2(600, 300));
+
+		ImGui::Text("Calculate Impedance, Reactance & Resistance in Circuit");
+		ImGui::Text("Z^2 = R^2 + X^2  Impedance from Resistance & Reactance in a circuit (X is Reactance, the difference between Inductive and Capacitive Reactance)");
+		static double Input19 = 0;
+		static double Input20 = 0;
+		static double Input21 = 0;
+		static double Input22 = 0;
+		ImGui::InputDouble("Impedance", &Input19, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Resistance", &Input20, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Inductive Reactance", &Input21, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Capacitive Reactance", &Input22, 0, 2, "%.2f", 0);
+		TFImpedanceReactance.calcImpedanceFromReactance(Input19, Input20, Input21, Input22);
+		ImGui::Text("Impedance(Z): %f Ohm", TFImpedanceReactance.Impedance);
+		ImGui::Text("Resistance(R): %f Ohm", TFImpedanceReactance.Resistance);
+		ImGui::Text("Reactance(X): %f Ohm", TFImpedanceReactance.Reactance);
+
+		if (ImGui::Button("clearInputs")) {
+			Input19 = 0;
+			Input20 = 0;
+			Input21 = 0;
+			Input22 = 0;
+		}
+
+		ImGui::EndChild();
+		ImGui::EndChild();
 
 		ImGui::End();
 	}
