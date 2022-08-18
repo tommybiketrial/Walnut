@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include <math.h>
 
 constexpr double PI = 3.1415926535897932385;
 
@@ -21,11 +22,14 @@ public:
 	double CapacitiveReactance = 0;
 	double InductiveReactance = 0;
 	double Reactance = 0;
+	double Powerfactor = 0;
 	double Charge = 0;
 	double Energy = 0;
 	double RPM = 0;
 	double Frequency = 0;
 	double NumOfPoles = 0;
+
+	double Angle = 0;
 
 	std::vector<double> Voltages;
 	std::vector<double> Currents;
@@ -42,11 +46,14 @@ public:
 		this->CapacitiveReactance = 0;
 		this->InductiveReactance = 0;
 		this->Reactance = 0;
+		this->Powerfactor = 0;
 		this->Charge = 0;
 		this->Energy = 0;
 		this->RPM = 0;
 		this->Frequency = 0;
 		this->NumOfPoles = 0;
+
+		this->Angle = 0;
 
 		this->Voltages = Empty;
 		this->Currents = Empty;
@@ -216,11 +223,9 @@ public:
 
 		if (InductiveReactance == 0) {
 			calcInductiveReactance(Frequency,Inductance);
-		}
-		else if(Inductance == 0) {
+		}else if(Inductance == 0) {
 			calcInductanceFromReactance(Frequency, InductiveReactance);
-		}
-		else {
+		}else {
 			calcFrequencyFromInductance(Inductance, InductiveReactance);
 		}
 	}
@@ -231,11 +236,9 @@ public:
 
 		if (CapacitiveReactance == 0) {
 			calcCapacitiveReactance(Frequency, Capacitance);
-		}
-		else if (Capacitance == 0) {
+		}else if (Capacitance == 0) {
 			calcCapacitanceFromReactance(Frequency, CapacitiveReactance);
-		}
-		else {
+		}else {
 			calcFrequencyFromCapacitance(Capacitance, CapacitiveReactance);
 		}
 	}
@@ -268,8 +271,7 @@ public:
 		double TmpReactance = 0;
 		if (InductiveReactance_in > CapacitiveReactance_in) {
 			TmpReactance = InductiveReactance_in - CapacitiveReactance_in;
-		}
-		else if (CapacitiveReactance_in > InductiveReactance_in) {
+		}else if (CapacitiveReactance_in > InductiveReactance_in) {
 			TmpReactance = CapacitiveReactance_in - InductiveReactance_in;
 		}
 
@@ -278,12 +280,29 @@ public:
 
 		if (Impedance == 0) {
 			Impedance = sqrt((Resistance * Resistance) + (TmpReactance * TmpReactance));
-		}
-		else if (Resistance == 0) {
+		}else if (Resistance == 0) {
 			Resistance = sqrt((TmpReactance * TmpReactance) - (Impedance * Impedance));
-		}
-		else {
+		}else {
 			Reactance = sqrt((Impedance * Impedance) - (Resistance * Resistance));
 		}
+	}
+
+	void calcPowerfactor(double Powerfactor_in, double Angle_in, double Resistance_in, double Impedance_in) {
+		Powerfactor = Powerfactor_in;
+		Angle = Angle_in;
+		Resistance = Resistance_in;
+		Impedance = Impedance_in;
+		if (Angle_in != 0) {
+			Powerfactor = cos(Angle*PI/180);
+		}
+
+		if (Powerfactor == 0) {
+			Powerfactor = Resistance / Impedance;
+		}else if(Resistance == 0) {
+			Resistance = Powerfactor * Impedance;
+		}else {
+			Impedance = Resistance / Powerfactor;
+		}
+		Angle = acos(Powerfactor)*(180.0 / PI);
 	}
 };

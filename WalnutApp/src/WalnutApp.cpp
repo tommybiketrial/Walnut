@@ -12,7 +12,7 @@
 
 TommyElectrical TFOhmsLaw, TFSeriesVoltage, TFSeriesResistance, TFParallelCurrent, TFParallelResistance;
 TommyElectrical TFCapacitanceQV, TFCapacitorEnergy, TFACInductionMotor;
-TommyElectrical TFInductance, TFCapacitance, TFImpedanceReactance;
+TommyElectrical TFInductance, TFCapacitance, TFImpedanceReactance, TFPowerfactor;
 
 class ExampleLayer : public Walnut::Layer
 {
@@ -421,7 +421,7 @@ public:
 		ImGui::EndChild();
 
 		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
-		ImGui::BeginChild("8th section", ImVec2(ImGui::GetContentRegionAvail().x, 350), true);
+		ImGui::BeginChild("8th section", ImVec2(ImGui::GetContentRegionAvail().x, 680), true);
 		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
 		ImGui::BeginChild("Impedance from Reactance", ImVec2(600, 300));
 
@@ -448,6 +448,36 @@ public:
 		}
 
 		ImGui::EndChild();
+
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 40, 23);
+		ImGui::BeginChild("Power Factor", ImVec2(600, 350));
+
+		ImGui::Text("Calculate Power Factor");
+		ImGui::Text("Powerfactor = Resistance / Impedance");
+		ImGui::Text("Inverse Cosine of Powerfactor to get the Phase Angle.");
+		static double Input23 = 0;
+		static double Input24 = 0;
+		static double Input25 = 0;
+		static double Input26 = 0;
+		ImGui::InputDouble("Power Factor", &Input23, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Phase Angle", &Input24, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Resistance", &Input25, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Impedance", &Input26, 0, 2, "%.2f", 0);
+		TFPowerfactor.calcPowerfactor(Input23, Input24, Input25, Input26);
+		ImGui::Text("Power Factor: %f ", TFPowerfactor.Powerfactor);
+		ImGui::Text("Phase Angle: %f Degrees", TFPowerfactor.Angle);
+		ImGui::Text("Resistance(R): %f Ohm", TFPowerfactor.Resistance);
+		ImGui::Text("Impedance(Z): %f Ohm", TFPowerfactor.Impedance);
+
+		if (ImGui::Button("clearInputs")) {
+			Input23 = 0;
+			Input24 = 0;
+			Input25 = 0;
+			Input26 = 0;
+		}
+
+		ImGui::EndChild();
+
 		ImGui::EndChild();
 
 		ImGui::End();
