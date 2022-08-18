@@ -13,6 +13,7 @@
 TommyElectrical TFOhmsLaw, TFSeriesVoltage, TFSeriesResistance, TFParallelCurrent, TFParallelResistance;
 TommyElectrical TFCapacitanceQV, TFCapacitorEnergy, TFACInductionMotor;
 TommyElectrical TFInductance, TFCapacitance, TFImpedanceReactance, TFPowerfactor;
+TommyElectrical TFThreePhaseNeutral;
 
 class ExampleLayer : public Walnut::Layer
 {
@@ -477,7 +478,47 @@ public:
 		}
 
 		ImGui::EndChild();
+		ImGui::EndChild();
 
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
+		ImGui::BeginChild("9th section", ImVec2(ImGui::GetContentRegionAvail().x, 350), true);
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("Three Phase Neutral", ImVec2(600, 320));
+		ImGui::Text("Calculate Three Phase Neutral Current");
+		ImGui::Text("N = sqrt(L1^2 + L2^2 + L3^2 - (L1*L2) - (L1*L3) - (L2*L3))");
+		ImGui::Text("Its quadratic nature when calculating L1,L2,L3 creates 2 different results.");
+		static double Input27 = 0;
+		static double Input28 = 0;
+		static double Input29 = 0;
+		static double Input30 = 0;
+		ImGui::InputDouble("Neutral", &Input27, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("L1", &Input28, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("L2", &Input29, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("L3", &Input30, 0, 2, "%.2f", 0);
+		TFThreePhaseNeutral.calcThreePhaseNeutral(Input27, Input28, Input29, Input30);
+		ImGui::Text("Neutral: %f A", TFThreePhaseNeutral.Neutral);
+		if (TFThreePhaseNeutral.L1q == 0) {
+			ImGui::Text("L1: %f A", TFThreePhaseNeutral.L1);
+		}else {
+			ImGui::Text("L1: %f A / %f A", TFThreePhaseNeutral.L1, TFThreePhaseNeutral.L1q);
+		}
+		if (TFThreePhaseNeutral.L2q == 0) {
+			ImGui::Text("L2: %f A", TFThreePhaseNeutral.L2);
+		}else {
+			ImGui::Text("L2: %f A / %f A", TFThreePhaseNeutral.L2, TFThreePhaseNeutral.L2q);
+		}
+		if (TFThreePhaseNeutral.L3q == 0) {
+			ImGui::Text("L3: %f A", TFThreePhaseNeutral.L3);
+		}else {
+			ImGui::Text("L3: %f A / %f A", TFThreePhaseNeutral.L3, TFThreePhaseNeutral.L3q);
+		}
+		if (ImGui::Button("clearInputs")) {
+			Input27 = 0;
+			Input28 = 0;
+			Input29 = 0;
+			Input30 = 0;
+		}
+		ImGui::EndChild();
 		ImGui::EndChild();
 
 		ImGui::End();

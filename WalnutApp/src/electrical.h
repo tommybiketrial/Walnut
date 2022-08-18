@@ -31,6 +31,16 @@ public:
 
 	double Angle = 0;
 
+	double Neutral = 0;
+	double L1 = 0;
+	double L2 = 0;
+	double L3 = 0;
+	double L1q = 0;
+	double L2q = 0;
+	double L3q = 0;
+	double Ans1 = 0;
+	double Ans2 = 0;
+
 	std::vector<double> Voltages;
 	std::vector<double> Currents;
 	std::vector<double> Resistances;
@@ -54,6 +64,16 @@ public:
 		this->NumOfPoles = 0;
 
 		this->Angle = 0;
+
+		this->Neutral = 0;
+		this->L1 = 0;
+		this->L2 = 0;
+		this->L3 = 0;
+		this->L1q = 0;
+		this->L2q = 0;
+		this->L3q = 0;
+		this->Ans1 = 0;
+		this->Ans2 = 0;
 
 		this->Voltages = Empty;
 		this->Currents = Empty;
@@ -304,5 +324,48 @@ public:
 			Impedance = Resistance / Powerfactor;
 		}
 		Angle = acos(Powerfactor)*(180.0 / PI);
+	}
+
+	void getL1fromL2L3Neutral(double N, double L2_in, double L3_in) {
+		Ans1 = (L2_in + L3_in + sqrt((-3) * L2_in * L2_in - 3 * L3_in * L3_in + 6 * L2_in * L3_in + 4 * N * N)) / 2;
+		Ans2 = (L2_in + L3_in - sqrt((-3) * L2_in * L2_in - 3 * L3_in * L3_in + 6 * L2_in * L3_in + 4 * N * N)) / 2;
+	}
+
+	void calcThreePhaseNeutral(double Neutral_in, double L1_in, double L2_in, double L3_in) {
+		Neutral = Neutral_in;
+		if (L1_in == 0) {
+			getL1fromL2L3Neutral(Neutral, L2_in, L3_in);
+			L2 = L2_in;
+			L3 = L3_in;
+			L1 = Ans1;
+			L1q = Ans2;
+			L2q = L3q = 0;
+		}
+		else if (L2_in == 0) {
+			getL1fromL2L3Neutral(Neutral, L1_in, L3_in);
+			L1 = L1_in;
+			L3 = L3_in;
+			L2 = Ans1;
+			L2q = Ans2;
+			L1q = L3q = 0;
+		}
+		else if (L3_in == 0) {
+			getL1fromL2L3Neutral(Neutral, L1_in, L2_in);
+			L1 = L1_in;
+			L2 = L2_in;
+			L3 = Ans1;
+			L3q = Ans2;
+			L1q = L2q = 0;
+		}
+		else {
+			L1 = L1_in;
+			L2 = L2_in;
+			L3 = L3_in;
+			L1q = L2q = L3q = 0;
+			Neutral = sqrt(L1 * L1 + L2 * L2 + L3 * L3 - (L1 * L2) - (L1 * L3) - (L2 * L3));
+		}
+		//N = sqrt(L1^2 + L2^2 + L3^2 - (L1*L2) - (L1*L3) - (L2*L3))
+		//sqrt everything that the lines multiply themselves and deduct those multiplying the other lines.
+		//L1 = (L2 + L3 (+ or -) sqrt((-3)*L2*L2-3*L3*L3+6*L2*L3+4*Neutral*Neutral))/2
 	}
 };
