@@ -13,7 +13,7 @@
 TommyElectrical TFOhmsLaw, TFSeriesVoltage, TFSeriesResistance, TFParallelCurrent, TFParallelResistance;
 TommyElectrical TFCapacitanceQV, TFCapacitorEnergy, TFACInductionMotor;
 TommyElectrical TFInductance, TFCapacitance, TFImpedanceReactance, TFPowerfactor;
-TommyElectrical TFThreePhaseNeutral;
+TommyElectrical TFThreePhaseNeutral, TFPythagoras, TFPowerfactorTrueOverApparent, TFReactivePowerFromApparent, TFLinePhase;
 
 class ExampleLayer : public Walnut::Layer
 {
@@ -405,8 +405,8 @@ public:
 		static double Input17 = 0;
 		static double Input18 = 0;
 		ImGui::InputDouble("Frequency", &Input16, 0, 2, "%.2f", 0);
-		ImGui::InputDouble("Capacitance", &Input17, 0, 2, "%.2f", 0);
-		ImGui::InputDouble("Reactance", &Input18, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Capacitance", &Input17, 0, 2, "%.6f", 0);
+		ImGui::InputDouble("Reactance", &Input18, 0, 2, "%.3f", 0);
 		TFCapacitance.calculateCapacitance(Input16, Input17, Input18);
 		ImGui::Text("Frequency(F): %f Herz", TFCapacitance.Frequency);
 		ImGui::Text("Capacitance(C): %f Farad", TFCapacitance.Capacitance);
@@ -422,7 +422,7 @@ public:
 		ImGui::EndChild();
 
 		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
-		ImGui::BeginChild("8th section", ImVec2(ImGui::GetContentRegionAvail().x, 680), true);
+		ImGui::BeginChild("8th section", ImVec2(ImGui::GetContentRegionAvail().x, 700), true);
 		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
 		ImGui::BeginChild("Impedance from Reactance", ImVec2(600, 300));
 
@@ -432,10 +432,10 @@ public:
 		static double Input20 = 0;
 		static double Input21 = 0;
 		static double Input22 = 0;
-		ImGui::InputDouble("Impedance", &Input19, 0, 2, "%.2f", 0);
-		ImGui::InputDouble("Resistance", &Input20, 0, 2, "%.2f", 0);
-		ImGui::InputDouble("Inductive Reactance", &Input21, 0, 2, "%.2f", 0);
-		ImGui::InputDouble("Capacitive Reactance", &Input22, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Impedance", &Input19, 0, 2, "%.3f", 0);
+		ImGui::InputDouble("Resistance", &Input20, 0, 2, "%.3f", 0);
+		ImGui::InputDouble("Inductive Reactance", &Input21, 0, 2, "%.6f", 0);
+		ImGui::InputDouble("Capacitive Reactance", &Input22, 0, 2, "%.6f", 0);
 		TFImpedanceReactance.calcImpedanceFromReactance(Input19, Input20, Input21, Input22);
 		ImGui::Text("Impedance(Z): %f Ohm", TFImpedanceReactance.Impedance);
 		ImGui::Text("Resistance(R): %f Ohm", TFImpedanceReactance.Resistance);
@@ -451,22 +451,24 @@ public:
 		ImGui::EndChild();
 
 		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 40, 23);
-		ImGui::BeginChild("Power Factor", ImVec2(600, 350));
+		ImGui::BeginChild("Power Factor", ImVec2(600, 370));
 
 		ImGui::Text("Calculate Power Factor");
 		ImGui::Text("Powerfactor = Resistance / Impedance");
 		ImGui::Text("Inverse Cosine of Powerfactor to get the Phase Angle.");
+		ImGui::Text("Low power factor leads to power loss, voltage drop, not economical,");
+		ImGui::Text("also requires larger cables because of volt drop.");
 		static double Input23 = 0;
 		static double Input24 = 0;
 		static double Input25 = 0;
 		static double Input26 = 0;
 		ImGui::InputDouble("Power Factor", &Input23, 0, 2, "%.2f", 0);
 		ImGui::InputDouble("Phase Angle", &Input24, 0, 2, "%.2f", 0);
-		ImGui::InputDouble("Resistance", &Input25, 0, 2, "%.2f", 0);
-		ImGui::InputDouble("Impedance", &Input26, 0, 2, "%.2f", 0);
-		TFPowerfactor.calcPowerfactor(Input23, Input24, Input25, Input26);
+		ImGui::InputDouble("Resistance", &Input25, 0, 2, "%.4f", 0);
+		ImGui::InputDouble("Impedance", &Input26, 0, 2, "%.4f", 0);
+		TFPowerfactor.calcPowerfactorFromResistance(Input23, Input24, Input25, Input26);
 		ImGui::Text("Power Factor: %f ", TFPowerfactor.Powerfactor);
-		ImGui::Text("Phase Angle: %f Degrees", TFPowerfactor.Angle);
+		ImGui::Text("Phase Angle: %f Degrees", TFPowerfactor.PhaseAngle);
 		ImGui::Text("Resistance(R): %f Ohm", TFPowerfactor.Resistance);
 		ImGui::Text("Impedance(Z): %f Ohm", TFPowerfactor.Impedance);
 
@@ -521,6 +523,86 @@ public:
 		ImGui::EndChild();
 		ImGui::EndChild();
 
+		style.Colors[ImGuiCol_ChildBg] = ImColor(40, 10, 25);
+		ImGui::BeginChild("10th section", ImVec2(ImGui::GetContentRegionAvail().x, 700), true);
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("Pythagoras Theorem", ImVec2(600, 320));
+		ImGui::Text("Pythagoras Theorem");
+		ImGui::Text("Power Triangle: ApparentPower^2 = TruePower^2 + ReactivePower^2");
+		ImGui::Text("Impedance Triangle: Impedance^2 = Resistance^2 + Net Reactance^2");
+		ImGui::Text("Voltage Triangle: Voltage(S)^2 = Voltage(X)^2 + Voltage(R)^2");
+		static double Input31 = 0;
+		static double Input32 = 0;
+		static double Input33 = 0;
+		ImGui::InputDouble("Hypotenuse", &Input31, 0, 2, "%.4f", 0);
+		ImGui::InputDouble("Leg 1", &Input32, 0, 2, "%.4f", 0);
+		ImGui::InputDouble("Leg 2", &Input33, 0, 2, "%.4f", 0);
+		TFPythagoras.PythagorasTheorem(Input31, Input32, Input33);
+		ImGui::Text("Hypotenuse: %f", TFPythagoras.Hypotenuse);
+		ImGui::Text("Leg 1: %f", TFPythagoras.Angle1);
+		ImGui::Text("Leg 2: %f", TFPythagoras.Angle2);
+		if (ImGui::Button("clearInputs")) {
+			Input31 = 0;
+			Input32 = 0;
+			Input33 = 0;
+		}
+		ImGui::EndChild();
+		ImGui::SameLine();
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("LinePhaseVoltage", ImVec2(600, 320));
+		ImGui::Text("Phase Voltage = Line Voltage / sqrt(3)");
+		static double Input40 = 0;
+		static double Input41 = 0;
+		ImGui::InputDouble("Phase Voltage", &Input40, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Line Voltage", &Input41, 0, 2, "%.2f", 0);
+		TFLinePhase.calcLinePhaseVoltage(Input40, Input41);
+		ImGui::Text("Phase Voltage: %f V", TFLinePhase.PhaseVoltage);
+		ImGui::Text("Line Voltage: %f V", TFLinePhase.LineVoltage);
+		if (ImGui::Button("clearInputs")) {
+			Input40 = 0;
+			Input41 = 0;
+		}
+		ImGui::EndChild();
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("Powerfactor True Over Apparent", ImVec2(600, 320));
+		ImGui::Text("Power factor = True power / Apparent power");
+		static double Input34 = 0;
+		static double Input35 = 0;
+		static double Input36 = 0;
+		ImGui::InputDouble("Power Factor", &Input34, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("True Power", &Input35, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Apparent Power", &Input36, 0, 2, "%.2f", 0);
+		TFPowerfactorTrueOverApparent.calcPowerfactorTrueOverApparent(Input34,Input35,Input36);
+		ImGui::Text("Power Factor: %f", TFPowerfactorTrueOverApparent.Powerfactor);
+		ImGui::Text("True Power: %f kW", TFPowerfactorTrueOverApparent.Truepower);
+		ImGui::Text("Apparent Power: %f kVA", TFPowerfactorTrueOverApparent.Apparentpower);
+		if (ImGui::Button("clearInputs")) {
+			Input34 = 0;
+			Input35 = 0;
+			Input36 = 0;
+		}
+		ImGui::EndChild();
+		ImGui::SameLine();
+		style.Colors[ImGuiCol_ChildBg] = ImColor(45, 35, 20);
+		ImGui::BeginChild("ReactiveApparentTruePower", ImVec2(600, 320));
+		ImGui::Text("ReactivePower = ApparentPower * sin(PhaseAngle)");
+		static double Input37 = 0;
+		static double Input38 = 0;
+		static double Input39 = 0;
+		ImGui::InputDouble("Reactive Power", &Input37, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Apparent Power", &Input38, 0, 2, "%.2f", 0);
+		ImGui::InputDouble("Phase Angle", &Input39, 0, 2, "%.2f", 0);
+		TFReactivePowerFromApparent.calcReactivepowerFromApparent(Input37, Input38, Input39);
+		ImGui::Text("Reactive Power: %f kVAr", TFReactivePowerFromApparent.Reactivepower);
+		ImGui::Text("Apparent Power: %f kVA", TFReactivePowerFromApparent.Apparentpower);
+		ImGui::Text("Phase Angle: %f degrees", TFReactivePowerFromApparent.PhaseAngle);
+		if (ImGui::Button("clearInputs")) {
+			Input37 = 0;
+			Input38 = 0;
+			Input39 = 0;
+		}
+		ImGui::EndChild();
+		ImGui::EndChild();
 		ImGui::End();
 	}
 

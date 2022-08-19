@@ -22,14 +22,23 @@ public:
 	double CapacitiveReactance = 0;
 	double InductiveReactance = 0;
 	double Reactance = 0;
-	double Powerfactor = 0;
 	double Charge = 0;
 	double Energy = 0;
 	double RPM = 0;
 	double Frequency = 0;
 	double NumOfPoles = 0;
 
-	double Angle = 0;
+	double PhaseAngle = 0;
+	double Hypotenuse = 0;
+	double Angle1 = 0;
+	double Angle2 = 0;
+
+	double Powerfactor = 0;
+	double Truepower = 0;
+	double Apparentpower = 0;
+	double Reactivepower = 0;
+	double PhaseVoltage = 0;
+	double LineVoltage = 0;
 
 	double Neutral = 0;
 	double L1 = 0;
@@ -56,14 +65,24 @@ public:
 		this->CapacitiveReactance = 0;
 		this->InductiveReactance = 0;
 		this->Reactance = 0;
-		this->Powerfactor = 0;
 		this->Charge = 0;
 		this->Energy = 0;
 		this->RPM = 0;
 		this->Frequency = 0;
 		this->NumOfPoles = 0;
 
-		this->Angle = 0;
+		this->PhaseAngle = 0;
+
+		this->Hypotenuse = 0;
+		this->Angle1 = 0;
+		this->Angle2 = 0;
+
+		this->Powerfactor = 0;
+		this->Truepower = 0;
+		this->Apparentpower = 0;
+		this->Reactivepower = 0;
+		this->PhaseVoltage = 0;
+		this->LineVoltage = 0;
 
 		this->Neutral = 0;
 		this->L1 = 0;
@@ -307,13 +326,13 @@ public:
 		}
 	}
 
-	void calcPowerfactor(double Powerfactor_in, double Angle_in, double Resistance_in, double Impedance_in) {
+	void calcPowerfactorFromResistance(double Powerfactor_in, double Angle_in, double Resistance_in, double Impedance_in) {
 		Powerfactor = Powerfactor_in;
-		Angle = Angle_in;
+		PhaseAngle = Angle_in;
 		Resistance = Resistance_in;
 		Impedance = Impedance_in;
 		if (Angle_in != 0) {
-			Powerfactor = cos(Angle*PI/180);
+			Powerfactor = cos(PhaseAngle*PI/180);
 		}
 
 		if (Powerfactor == 0) {
@@ -323,7 +342,39 @@ public:
 		}else {
 			Impedance = Resistance / Powerfactor;
 		}
-		Angle = acos(Powerfactor)*(180.0 / PI);
+		PhaseAngle = acos(Powerfactor)*(180.0 / PI);
+	}
+
+	void calcPowerfactorTrueOverApparent(double Powerfactor_in, double Truepower_in, double Apparentpower_in) {
+		Powerfactor = Powerfactor_in;
+		Truepower = Truepower_in;
+		Apparentpower = Apparentpower_in;
+
+		if (Powerfactor == 0) {
+			Powerfactor = Truepower / Apparentpower;
+		}else if (Truepower == 0) {
+			Truepower = Apparentpower * Powerfactor;
+		}else {
+			Apparentpower = Truepower / Powerfactor;
+		}
+	}
+
+	//TO ADD
+	void calcReactivepowerFromApparent(double Reactivepower_in, double Apparentpower_in, double PhaseAngle_in) {
+		Reactivepower = Reactivepower_in;
+		Apparentpower = Apparentpower_in;
+		PhaseAngle = PhaseAngle_in;
+
+		double tmp = sin(PhaseAngle * PI / 180);
+
+		if (Reactivepower == 0) {
+			Reactivepower = Apparentpower * tmp;
+		}else if (Apparentpower == 0) {
+			Apparentpower = Reactivepower / tmp;
+		}else {
+			tmp = Reactivepower / Apparentpower;
+			PhaseAngle = asin(tmp) * (180 / PI);
+		}
 	}
 
 	void getL1fromL2L3Neutral(double N, double L2_in, double L3_in) {
@@ -367,5 +418,32 @@ public:
 		//N = sqrt(L1^2 + L2^2 + L3^2 - (L1*L2) - (L1*L3) - (L2*L3))
 		//sqrt everything that the lines multiply themselves and deduct those multiplying the other lines.
 		//L1 = (L2 + L3 (+ or -) sqrt((-3)*L2*L2-3*L3*L3+6*L2*L3+4*Neutral*Neutral))/2
+	}
+
+	void PythagorasTheorem(double Hypotenuse_in, double angle1, double angle2) {
+		Hypotenuse = Hypotenuse_in;
+		Angle1 = angle1;
+		Angle2 = angle2;
+		//ApparentPower^2 = TruePower^2 + ReactivePower^2
+		//Impedance^2 = Resistance^2 + Net Reactance^2
+		//Voltage(S)^2 = Voltage(X)^2 + Voltage(R)^2
+		if (Hypotenuse == 0) {
+			Hypotenuse = sqrt((Angle1*Angle1) + (Angle2*Angle2));
+		}else if (Angle1 == 0) {
+			Angle1 = sqrt((Hypotenuse*Hypotenuse) - (Angle2 * Angle2));
+		}else {
+			Angle2 = sqrt((Hypotenuse*Hypotenuse) - (Angle1 * Angle1));
+		}
+	}
+
+	void calcLinePhaseVoltage(double PhaseVoltage_in, double LineVoltage_in) {
+		PhaseVoltage = PhaseVoltage_in;
+		LineVoltage = LineVoltage_in;
+
+		if (PhaseVoltage == 0) {
+			PhaseVoltage = LineVoltage / sqrt(3);
+		}else {
+			LineVoltage = PhaseVoltage * sqrt(3);
+		}
 	}
 };
